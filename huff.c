@@ -16,17 +16,17 @@ int main(int argc, char ** argv){
 
 	charfreq(tree, argv[1]);
 	
-	count = 0;
+	chartree * root = makell(tree);
 	
-	while(count < 256)
+	/*chartree * surfpointer = root;
+	
+	while (surfpointer != NULL)
 	{
-		if(tree[count].charcount != 0)
-		{
-			printf("%c : %d\n", tree[count].character, tree[count].charcount);
-		}
-		count++;
+		printf("%c : %d\n", surfpointer->character, surfpointer->charcount);
+		surfpointer = surfpointer->next;
 	}
-
+	*/
+	
 	return 0;
 }
 
@@ -66,5 +66,25 @@ void charfreq(chartree * tree, char * filename)
 	}
 }
 
+chartree * makell(chartree * tree)
+{
+	int index = 0;	
+	while (tree[index].charcount == 0)
+	{
+		index++;
+	}
 	
+	chartree * root = malloc(sizeof(chartree));
+	
+	root = &tree[index];
+	
+	while(index < 255)
+	{
+		tree[index].next = &tree[index+1];
+		index++;
+	}
+	
+	tree[index].next = NULL;
+	return root;
+}
 	

@@ -6,9 +6,11 @@ typedef struct chartree
 	int charcount;
 	struct chartree * left;
 	struct chartree * right;
+	struct chartree * next;
 } chartree;
 
 
 void charfreq(chartree*, char*);
-
+chartree * makell(chartree*);
+//chartree * addnode( 
 
