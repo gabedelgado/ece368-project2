@@ -3,11 +3,12 @@
 typedef struct chartree
 {
 	char character;
-	int count;
-	chartree * left;
-	chartree * right;
+	int charcount;
+	struct chartree * left;
+	struct chartree * right;
 } chartree;
 
 
+void charfreq(chartree*, char*);
 
-void countfreq(chartree
+
