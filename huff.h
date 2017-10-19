@@ -9,8 +9,18 @@ typedef struct chartree
 	struct chartree * next;
 } chartree;
 
+typedef struct hufftable
+{
+	char character;
+	char code[256];
+} hufftable;
 
 void charfreq(chartree*, char*);
 chartree * makell(chartree*);
-//chartree * addnode( 
+//chartree * addnode(
+chartree * makehufftree(chartree *);
+chartree * insertnode(chartree *, chartree *);
+void maketable(chartree *, hufftable *);
+
+ 
 

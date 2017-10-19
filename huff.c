@@ -16,6 +16,16 @@ int main(int argc, char ** argv){
 
 	charfreq(tree, argv[1]);
 	
+	int index = 0;
+	count = 0;	
+	while(index < 256)
+	{
+		if(tree[index].charcount != 0)
+		{
+			count++;
+		}	
+	}
+	
 	chartree * root = makell(tree);
 	
 	/*chartree * surfpointer = root;
@@ -27,6 +37,21 @@ int main(int argc, char ** argv){
 	}
 	*/
 	
+	
+	hufftable table[count];
+	index = 255;
+	count = 0;	
+	while((tree[index].charcount != 0) && (index >= 0))
+	{
+		table[count].character = tree[index].character;
+		count++;
+		index--;
+	}	
+		
+	chartree * treeroot = makehufftree(root);
+	
+	maketable(treeroot, table); 	
+			
 	return 0;
 }
 
@@ -81,10 +106,73 @@ chartree * makell(chartree * tree)
 	while(index < 255)
 	{
 		tree[index].next = &tree[index+1];
+		tree[index].left = NULL;
+		tree[index].right = NULL;		
 		index++;
 	}
 	
+	tree[index].right = NULL;
+	tree[index].left = NULL;
 	tree[index].next = NULL;
 	return root;
 }
 	
+chartree * makehufftree(chartree * root)
+{
+	chartree * newnode;	
+	chartree * temproot = root;	
+	while(root->next->next != NULL)
+	{
+		newnode = malloc(sizeof(chartree));
+		newnode->left = root;
+		newnode->right = root->next;
+		newnode->charcount = root->charcount + root->next->charcount;
+		root = root->next->next;
+		temproot = insertnode(newnode, root);
+		root = temproot;
+	}
+	
+	newnode = malloc(sizeof(chartree));
+	newnode->left = root;
+	newnode->right = root->next;
+	
+	return newnode;
+}
+	 
+chartree * insertnode(chartree * newnode, chartree * root)
+{
+	chartree * prevsurfer = root;
+	chartree * surfer = root;
+	int firstit = 0;
+	while((surfer != NULL) && (newnode->charcount < surfer->charcount))
+	{
+		surfer = surfer->next;
+		if(firstit == 1)
+		{
+			prevsurfer = prevsurfer->next;
+		}
+		firstit = 1;
+	}
+
+	if(surfer == NULL)
+	{
+		prevsurfer->next = newnode;
+		newnode->next = NULL;		
+	}
+	else if (surfer == prevsurfer)
+	{
+		newnode->next = root;
+		root = newnode->next;
+	}
+	else
+	{
+		newnode->next = prevsurfer->next;
+		prevsurfer->next = newnode;
+	}
+
+	return root;	
+}
+
+
+
+
