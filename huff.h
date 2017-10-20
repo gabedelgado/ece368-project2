@@ -19,7 +19,7 @@ void charfreq(chartree*, char*);
 chartree * makell(chartree*);
 //chartree * addnode(
 chartree * makehufftree(chartree *);
-chartree * insertnode(chartree *, chartree *);
+void insertnode(chartree *, chartree **);
 void maketable(chartree *, hufftable *, char *, int);
 
  

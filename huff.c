@@ -80,7 +80,7 @@ int main(int argc, char ** argv){
 	
 	while(index < printtablecount)
 	{
-		printf("%c : %c\n", table[index].character, table[index].code[0]);
+		printf("%c : %s\n", table[index].character, table[index].code);
 		index++;
 	}
 			
@@ -153,8 +153,7 @@ chartree * makell(chartree * tree)
 	
 chartree * makehufftree(chartree * root)
 {
-	chartree * newnode;	
-	chartree * temproot = root;	
+	chartree * newnode;		
 	while(root->next->next != NULL)
 	{
 		newnode = malloc(sizeof(chartree));
@@ -162,8 +161,7 @@ chartree * makehufftree(chartree * root)
 		newnode->right = root->next;
 		newnode->charcount = root->charcount + root->next->charcount;
 		root = root->next->next;
-		temproot = insertnode(newnode, root);
-		root = temproot;
+		insertnode(newnode, &root);
 	}
 	
 	newnode = malloc(sizeof(chartree));
@@ -173,12 +171,12 @@ chartree * makehufftree(chartree * root)
 	return newnode;
 }
 	 
-chartree * insertnode(chartree * newnode, chartree * root)
+void insertnode(chartree * newnode, chartree ** root)
 {
-	chartree * prevsurfer = root;
-	chartree * surfer = root;
+	chartree * prevsurfer = *root;
+	chartree * surfer = *root;
 	int firstit = 0;
-	while((surfer != NULL) && (newnode->charcount < surfer->charcount))
+	while((surfer != NULL) && (newnode->charcount > surfer->charcount))
 	{
 		surfer = surfer->next;
 		if(firstit == 1)
@@ -195,8 +193,8 @@ chartree * insertnode(chartree * newnode, chartree * root)
 	}
 	else if (surfer == prevsurfer)
 	{
-		newnode->next = root;
-		root = newnode->next;
+		newnode->next = *root;
+		*root = newnode;
 	}
 	else
 	{
@@ -204,7 +202,6 @@ chartree * insertnode(chartree * newnode, chartree * root)
 		prevsurfer->next = newnode;
 	}
 
-	return root;	
 }
 
 void maketable(chartree * node, hufftable * table, char * currentpath, int pathstep)
