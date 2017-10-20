@@ -17,10 +17,10 @@ typedef struct hufftable
 
 void charfreq(chartree*, char*);
 chartree * makell(chartree*);
-//chartree * addnode(
 chartree * makehufftree(chartree *);
 void insertnode(chartree *, chartree **);
-void maketable(chartree *, hufftable *, char *, int);
+void maketable(chartree *, hufftable *, char *, int, int);
+void compress(hufftable *, char *);
 
  
 

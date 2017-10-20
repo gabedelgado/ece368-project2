@@ -58,7 +58,8 @@ int main(int argc, char ** argv){
 	chartree * psuedo = malloc(sizeof(chartree));
 	
 	psuedo->charcount = 0;
-	
+	psuedo->left = NULL;
+	psuedo->right = NULL;
 	psuedo->next = root;
 	root = psuedo;
 		
@@ -75,7 +76,7 @@ int main(int argc, char ** argv){
 	}
 	int pathstep = 0;
 		
-	maketable(treeroot, table, path, pathstep); 	
+	maketable(treeroot, table, path, pathstep, printtablecount - 1); 	
 	index = 0;	
 	
 	while(index < printtablecount)
@@ -122,7 +123,7 @@ void charfreq(chartree * tree, char * filename)
 		}
 		lastcheck--;
 	}
-	
+	fclose(infile);
 }
 
 chartree * makell(chartree * tree)
@@ -167,6 +168,7 @@ chartree * makehufftree(chartree * root)
 	newnode = malloc(sizeof(chartree));
 	newnode->left = root;
 	newnode->right = root->next;
+	newnode->charcount = root->charcount + root->next->charcount;
 	
 	return newnode;
 }
@@ -204,17 +206,24 @@ void insertnode(chartree * newnode, chartree ** root)
 
 }
 
-void maketable(chartree * node, hufftable * table, char * currentpath, int pathstep)
+void maketable(chartree * node, hufftable * table, char * currentpath, int pathstep, int lastintable)
 {
 	int count = 0;
 	int index = 0;	
-	if((node->left == NULL) && (node->right == NULL))
+	if(((node->left == NULL) && (node->right == NULL)) || (node->charcount == 0))
 	{
-		while(node->character != table[count].character)
+		if(node->charcount != 0)
 		{
-			count++;
+			while(node->character != table[count].character)
+			{
+				count++;
+			}
+		}		
+		
+		if(node->charcount == 0)
+		{
+			count = lastintable;
 		}
-				
 		while(index < pathstep)
 		{
 			table[count].code[index] = currentpath[index];
@@ -231,15 +240,43 @@ void maketable(chartree * node, hufftable * table, char * currentpath, int paths
 		index++;
 	}
 		
-	
 	if(node->left != NULL)
 	{
 		pathtosend[index] = '0';
-		maketable(node->left, table, pathtosend, pathstep + 1);
+		maketable(node->left, table, pathtosend, pathstep + 1, lastintable);
 	}	
+	
 	if(node->right != NULL)
 	{	
 		pathtosend[index] = '1';		
-		maketable(node->right, table, pathtosend, pathstep + 1);
+		maketable(node->right, table, pathtosend, pathstep + 1, lastintable);
 	}		
 }
+
+void compress(hufftable * table, char * filename)
+{
+	char buffer[256];
+	int index = 0;
+	char * outfilename[100];
+	FILE * infile = fopen(filename, "r");
+	while (filename[index] != NULL)
+	{
+		outfilename[index] = filename[index];
+		index++;
+	}
+	outfilename[index] = '.';
+	index++;	
+	outfilename[index] = 'h';
+	index++;
+	outfilename[index] = 'u';
+	index++;
+	outfilename[index] = 'f';
+	index++;
+	outfilename[index] = 'f';
+	
+	FILE * outfile = fopen(outfilename, "w");
+	
+	
+
+	
+}	
