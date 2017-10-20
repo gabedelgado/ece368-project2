@@ -4,17 +4,20 @@
 
 int main(int argc, char ** argv){
 
-	printf("starting...\n");	
+		
 	chartree tree[256]; 
 	int count = 0;
+	printf("starting...\n");	
 	while(count < 256)
 	{
 		tree[count].character = (char)count;
 		tree[count].charcount = 0;
 		count++;
 	}
-
+	
 	charfreq(tree, argv[1]);
+	
+	
 	
 	int index = 0;
 	count = 0;	
@@ -23,7 +26,8 @@ int main(int argc, char ** argv){
 		if(tree[index].charcount != 0)
 		{
 			count++;
-		}	
+		}
+		index++;	
 	}
 	
 	chartree * root = makell(tree);
@@ -38,9 +42,11 @@ int main(int argc, char ** argv){
 	*/
 	
 	
-	hufftable table[count];
-	index = 255;
+	hufftable table[count + 1];
+	index = 255;	
+	int printtablecount = count + 1;
 	count = 0;	
+		
 	while((tree[index].charcount != 0) && (index >= 0))
 	{
 		table[count].character = tree[index].character;
@@ -48,9 +54,35 @@ int main(int argc, char ** argv){
 		index--;
 	}	
 		
-	chartree * treeroot = makehufftree(root);
+		
+	chartree * psuedo = malloc(sizeof(chartree));
 	
-	maketable(treeroot, table); 	
+	psuedo->charcount = 0;
+	
+	psuedo->next = root;
+	root = psuedo;
+		
+		
+		
+	chartree * treeroot = makehufftree(root);
+	char * path = malloc(sizeof(char)*256);
+	index = 0;
+		
+	while(index < 256)
+	{
+		path[index] = '5';
+		index++;
+	}
+	int pathstep = 0;
+		
+	maketable(treeroot, table, path, pathstep); 	
+	index = 0;	
+	
+	while(index < printtablecount)
+	{
+		printf("%c : %c\n", table[index].character, table[index].code[0]);
+		index++;
+	}
 			
 	return 0;
 }
@@ -60,12 +92,13 @@ void charfreq(chartree * tree, char * filename)
 	FILE * infile = fopen(filename, "r");
 			
 	char readval = fgetc(infile);
-
+	
 	while(readval != EOF)
 	{
 		tree[(int)readval].charcount++;
 		readval = fgetc(infile);
 	}
+	
 	
 	chartree temp; 
 	int checkcheck = 1;
@@ -89,6 +122,7 @@ void charfreq(chartree * tree, char * filename)
 		}
 		lastcheck--;
 	}
+	
 }
 
 chartree * makell(chartree * tree)
@@ -173,6 +207,42 @@ chartree * insertnode(chartree * newnode, chartree * root)
 	return root;	
 }
 
-
-
-
+void maketable(chartree * node, hufftable * table, char * currentpath, int pathstep)
+{
+	int count = 0;
+	int index = 0;	
+	if((node->left == NULL) && (node->right == NULL))
+	{
+		while(node->character != table[count].character)
+		{
+			count++;
+		}
+				
+		while(index < pathstep)
+		{
+			table[count].code[index] = currentpath[index];
+			index++;
+		}
+		return;
+	}
+	
+	char pathtosend[256];
+	
+	while(index < pathstep)
+	{
+		pathtosend[index] = currentpath[index];
+		index++;
+	}
+		
+	
+	if(node->left != NULL)
+	{
+		pathtosend[index] = '0';
+		maketable(node->left, table, pathtosend, pathstep + 1);
+	}	
+	if(node->right != NULL)
+	{	
+		pathtosend[index] = '1';		
+		maketable(node->right, table, pathtosend, pathstep + 1);
+	}		
+}
