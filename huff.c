@@ -7,8 +7,7 @@ int main(int argc, char ** argv){
 
 		
 	chartree tree[256]; 
-	int count = 0;
-	printf("starting...\n");	
+	int count = 0;	
 	while(count < 256)
 	{
 		tree[count].character = (char)count;
