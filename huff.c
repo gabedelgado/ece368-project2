@@ -80,12 +80,12 @@ int main(int argc, char ** argv){
 	maketable(treeroot, table, path, pathstep, printtablecount - 1); 	
 	index = 0;	
 	
-	while(index < printtablecount)
+	/*while(index < printtablecount)
 	{
 		printf("%c : %s\n", table[index].character, table[index].code);
 		index++;
 	}
-	
+	*/
 	compress(table, argv[1], tree, printtablecount - 1);
 
 			
