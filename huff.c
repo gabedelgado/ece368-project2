@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "huff.h"
 
 int main(int argc, char ** argv){
@@ -84,6 +85,9 @@ int main(int argc, char ** argv){
 		printf("%c : %s\n", table[index].character, table[index].code);
 		index++;
 	}
+	
+	compress(table, argv[1], tree, printtablecount - 1);
+
 			
 	return 0;
 }
@@ -229,6 +233,7 @@ void maketable(chartree * node, hufftable * table, char * currentpath, int paths
 			table[count].code[index] = currentpath[index];
 			index++;
 		}
+		table[count].code[index] = '5';
 		return;
 	}
 	
@@ -253,13 +258,13 @@ void maketable(chartree * node, hufftable * table, char * currentpath, int paths
 	}		
 }
 
-void compress(hufftable * table, char * filename)
+void compress(hufftable * table, char * filename, chartree * tree, int lastintable)
 {
 	char buffer[256];
 	int index = 0;
-	char * outfilename[100];
+	char outfilename[100];
 	FILE * infile = fopen(filename, "r");
-	while (filename[index] != NULL)
+	while (filename[index] != '\0')
 	{
 		outfilename[index] = filename[index];
 		index++;
@@ -276,7 +281,138 @@ void compress(hufftable * table, char * filename)
 	
 	FILE * outfile = fopen(outfilename, "w");
 	
-	
+	addtreeheader(infile, outfile, tree);
+	char readval = fgetc(infile);
+	int bufferindex = 0;	
+	int codeindex = 0;
+	int powerof2 = 7;
+	int transferbuffer = 0;
+	int chartoint = 0;	
+	int chartowrite = 0;
+	int clearbuffer = 0;	
+	int clearbuffercount = 0;
+	while(readval != EOF)
+	{
+		index = 0;		
+		while(table[index].character != readval)
+		{
+			index++;	
+		}
+		codeindex = 0;		
+		while(table[index].code[codeindex] != '5')
+		{
+			buffer[bufferindex] = table[index].code[codeindex];
+			codeindex++;
+			bufferindex++;
+		}
+		powerof2 = 7;		
+		transferbuffer = 0;
+		chartowrite = 0;		
+		while(bufferindex >= 8)
+		{
+			powerof2 = 7;			
+			transferbuffer = 0;
+			chartowrite = 0;
+			while(transferbuffer < 8)
+			{
+				if(buffer[transferbuffer] == '0')
+				{	
+					chartoint = 0;
+				}	
+				else
+				{
+					chartoint = 1;
+				}
+				chartowrite += chartoint * ((int)(pow(2, powerof2)));
+				transferbuffer++;
+				powerof2--;
+			}				
+			fprintf(outfile, "%c", chartowrite);
+			clearbuffer = bufferindex - 8;
+			clearbuffercount = 0;			
+			while(clearbuffercount < clearbuffer)
+			{
+				buffer[clearbuffercount] = buffer[clearbuffercount + 8];
+				clearbuffercount++;
+			}
+			while(clearbuffercount < bufferindex)
+			{
+				buffer[clearbuffercount] = '\0';
+				clearbuffercount++;
+			}
+			bufferindex = bufferindex - 8;
+		}
+		
+		readval = fgetc(infile);
+			
+	}
+	index = 0;
+	while(table[lastintable].code[index] != '5')
+	{
+		buffer[bufferindex] = table[lastintable].code[index];
+		bufferindex++;
+		index++;
+	}
+	while((bufferindex % 8) != 0)
+	{
+		buffer[bufferindex] = '0';
+		bufferindex++;
+	}
 
+	while(bufferindex >= 8)
+	{
+		powerof2 = 7;			
+		transferbuffer = 0;
+		chartowrite = 0;
+		while(transferbuffer < 8)
+		{
+			if(buffer[transferbuffer] == '0')
+			{	
+				chartoint = 0;
+			}	
+			else
+			{
+				chartoint = 1;
+			}
+			chartowrite += chartoint * ((int)(pow(2, powerof2)));
+			transferbuffer++;
+			powerof2--;
+		}				
+		fprintf(outfile, "%c", chartowrite);
+		clearbuffer = bufferindex - 8;
+		clearbuffercount = 0;			
+		while(clearbuffercount < clearbuffer)
+		{
+			buffer[clearbuffercount] = buffer[clearbuffercount + 8];
+			clearbuffercount++;
+		}
+		while(clearbuffercount < bufferindex)
+		{
+			buffer[clearbuffercount] = '\0';
+			clearbuffercount++;
+		}
+		bufferindex = bufferindex - 8;
+	}
 	
 }	
+
+void addtreeheader(FILE * infile, FILE * outfile, chartree * tree)
+{
+	int index = 0;
+	
+	while (tree[index].charcount == 0)
+	{
+		index++;
+	}
+
+	int numchars = 256 - index;
+	
+	fprintf(outfile, "%d", numchars);
+	
+	while(index < 256)
+	{
+		fprintf(outfile, " %c %d", tree[index].character, tree[index].charcount);
+		index++;
+	}
+}	
+

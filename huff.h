@@ -20,7 +20,9 @@ chartree * makell(chartree*);
 chartree * makehufftree(chartree *);
 void insertnode(chartree *, chartree **);
 void maketable(chartree *, hufftable *, char *, int, int);
-void compress(hufftable *, char *);
+void compress(hufftable *, char *, chartree *, int);
+void addtreeheader(FILE *, FILE *, chartree *);
+
 
  
 
